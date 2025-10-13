@@ -1,73 +1,80 @@
-# React + TypeScript + Vite
+# Tenpo Challenge - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicación React con TypeScript para el desafío técnico de Tenpo.
 
-Currently, two official plugins are available:
+## 🚀 Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React 19** con TypeScript
+- **Vite** - Build tool
+- **Tailwind CSS** - Estilos
+- **Zustand** - State management
+- **React Router v7** - Routing
+- **Axios** - HTTP client
+- **TanStack Virtual** - Virtualización de listas
 
-## React Compiler
+## 📋 Requisitos Previos
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+- Node.js >= 22.x
+- npm >= 9.x
 
-## Expanding the ESLint configuration
+## 🛠️ Instalación
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+bash
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+# Clonar repositorio
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+git clone <https://github.com/FrontEdd/tenpo-challenge.git>
+cd tenpo-challenge
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Instalar dependencias
+
+```bash
+npm install
 ```
+
+# Ejecutar en desarrollo
+
+```bash
+npm run dev
+```
+
+## 📦 Scripts Disponibles
+
+```bash
+bash
+npm run dev # Ejecutar en modo desarrollo
+npm run build # Build de producción
+npm run preview # Preview del build
+npm run lint # Ejecutar ESLint
+npm run lint:fix # Fix automático de ESLint
+npm run format # Formatear código con Prettier
+```
+
+## 🏗️ Arquitectura
+
+```
+src/
+├── config/ # Configuraciones (axios, constants)
+├── contexts/ # React Contexts
+├── hooks/ # Custom hooks
+├── layouts/ # Layouts (Public/Private)
+├── pages/ # Páginas de la aplicación
+├── routes/ # Configuración de rutas
+├── services/ # Servicios y API calls
+├── types/ # Type definitions
+└── utils/ # Utilidades y helpers
+```
+
+## 🔄 Estado del Proyecto
+
+- [x] Setup inicial
+- [ ] Configuración de autenticación
+- [ ] Página de login
+- [ ] Página home con lista virtualizada
+- [ ] Sistema de logout
+
+## 👨‍💻 Autor
+
+Tu Nombre - [GitHub](https://github.com/FrontEdd)

@@ -25,8 +25,10 @@ bash
 
 # Clonar repositorio
 
-git clone <https://github.com/FrontEdd/tenpo-challenge.git>
+```
+git clone https://github.com/FrontEdd/tenpo-challenge.git
 cd tenpo-challenge
+```
 
 # Instalar dependencias
 
@@ -43,7 +45,6 @@ npm run dev
 ## 📦 Scripts Disponibles
 
 ```bash
-bash
 npm run dev # Ejecutar en modo desarrollo
 npm run build # Build de producción
 npm run preview # Preview del build
@@ -77,4 +78,4 @@ src/
 
 ## 👨‍💻 Autor
 
-Tu Nombre - [GitHub](https://github.com/FrontEdd)
+@FrontEdd - [GitHub](https://github.com/FrontEdd)

@@ -22,12 +22,28 @@ export interface ApiResponse<T> {
   message?: string
 }
 
+// JSONPlaceholder raw photo shape
 export interface Photo {
   albumId: number
   id: number
   title: string
   url: string
   thumbnailUrl: string
+}
+
+// Normalized item shape consumed by the UI list — source-agnostic
+export interface ListItem {
+  id: string | number
+  title: string
+  subtitle?: string
+  thumbnailUrl?: string
+  badge?: string
+}
+
+// Adapter contract: any data source must implement this
+export interface DataSourceAdapter<TRaw> {
+  fetchItems(limit: number): Promise<TRaw[]>
+  normalize(raw: TRaw): ListItem
 }
 
 // Route Types

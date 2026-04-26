@@ -1,6 +1,8 @@
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 import { ProtectedRoute } from './ProtectedRoute'
 import { PublicRoute } from './PublicRoute'
+import { PublicLayout } from '@layouts/PublicLayout'
+import { PrivateLayout } from '@layouts/PrivateLayout'
 import { ROUTES } from '@config/constants'
 
 const router = createBrowserRouter([
@@ -12,8 +14,14 @@ const router = createBrowserRouter([
     element: <PublicRoute />,
     children: [
       {
-        path: ROUTES.PUBLIC.LOGIN,
-        lazy: () => import('@pages/LoginPage').then(m => ({ Component: m.LoginPage })),
+        element: <PublicLayout />,
+        children: [
+          {
+            path: ROUTES.PUBLIC.LOGIN,
+            lazy: () =>
+              import('@pages/LoginPage').then(m => ({ Component: m.LoginPage })),
+          },
+        ],
       },
     ],
   },
@@ -21,12 +29,18 @@ const router = createBrowserRouter([
     element: <ProtectedRoute />,
     children: [
       {
-        path: '/app',
-        element: <Navigate to={ROUTES.PRIVATE.HOME} replace />,
-      },
-      {
-        path: ROUTES.PRIVATE.HOME,
-        lazy: () => import('@pages/HomePage').then(m => ({ Component: m.HomePage })),
+        element: <PrivateLayout />,
+        children: [
+          {
+            path: '/app',
+            element: <Navigate to={ROUTES.PRIVATE.HOME} replace />,
+          },
+          {
+            path: ROUTES.PRIVATE.HOME,
+            lazy: () =>
+              import('@pages/HomePage').then(m => ({ Component: m.HomePage })),
+          },
+        ],
       },
     ],
   },

@@ -22,27 +22,64 @@ export interface ApiResponse<T> {
   message?: string
 }
 
-// JSONPlaceholder raw photo shape
-export interface Photo {
-  albumId: number
+// Art Institute of Chicago raw artwork shape
+export interface Artwork {
   id: number
   title: string
-  url: string
-  thumbnailUrl: string
+  artist_display: string
+  date_display: string
+  image_id: string | null
+  medium_display: string
+  place_of_origin: string | null
+  thumbnail: {
+    lqip: string
+    width: number
+    height: number
+    alt_text: string
+  } | null
+  artwork_type_title: string | null
+  department_title: string | null
+  color: { h: number; l: number; s: number } | null
+  colorfulness: number
 }
 
-// Normalized item shape consumed by the UI list — source-agnostic
+// Art medium categories used for filtering
+export type MediumCategory =
+  | 'Painting'
+  | 'Print'
+  | 'Drawing'
+  | 'Photography'
+  | 'Object'
+  | 'Media'
+  | 'Other'
+
+// Normalized item shape consumed by the UI — source-agnostic
 export interface ListItem {
   id: string | number
   title: string
-  subtitle?: string
-  thumbnailUrl?: string
-  badge?: string
+  subtitle?: string        // artist name (first line of artist_display)
+  imageUrl?: string        // full IIIF image URL
+  lqip?: string            // base64 blur placeholder for progressive image load
+  imageAlt?: string        // alt text for accessibility
+  badge?: string           // medium category label
+  meta?: string            // date + place concatenated
+  mediumCategory?: MediumCategory
+  origin?: string          // place_of_origin (for future origin filter)
+  accentColor?: string     // hsl() string from artwork dominant color
+  mediumDisplay?: string   // raw medium display text (for hover tooltip)
+  artworkType?: string     // artwork_type_title
+}
+
+// Active filters state
+export interface ArtworkFilters {
+  search: string
+  mediumCategory: MediumCategory | 'all'
+  sortBy: 'default' | 'date-asc' | 'date-desc' | 'title-az'
 }
 
 // Adapter contract: any data source must implement this
 export interface DataSourceAdapter<TRaw> {
-  fetchItems(limit: number): Promise<TRaw[]>
+  fetchItems(page: number, limit: number): Promise<TRaw[]>
   normalize(raw: TRaw): ListItem
 }
 

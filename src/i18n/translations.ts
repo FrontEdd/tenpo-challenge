@@ -1,0 +1,123 @@
+export const translations = {
+  en: {
+    auth: {
+      signIn: 'Sign in',
+      signingIn: 'Signing in…',
+      subtitle: 'Sign in to your account',
+      emailLabel: 'Email',
+      emailPlaceholder: 'you@example.com',
+      emailRequired: 'Email is required',
+      emailInvalid: 'Enter a valid email address',
+      passwordLabel: 'Password',
+      passwordPlaceholder: '••••••••',
+      passwordRequired: 'Password is required',
+      passwordTooShort: 'Password must be at least 6 characters',
+      showPassword: 'Show password',
+      hidePassword: 'Hide password',
+      invalidCredentials: 'Invalid credentials. Please try again.',
+    },
+    nav: {
+      logout: 'Logout',
+    },
+    home: {
+      title: 'Art Collection',
+      statusLoading: (loaded: number, total: number) =>
+        `Loading… ${loaded.toLocaleString()} / ${total.toLocaleString()} artworks`,
+      statusFilteredLoading: (filtered: number, loaded: number) =>
+        `${filtered.toLocaleString()} results from ${loaded.toLocaleString()} loaded — still loading…`,
+      statusFiltered: (filtered: number, total: number) =>
+        `${filtered.toLocaleString()} of ${total.toLocaleString()} artworks`,
+      statusAll: (total: number) => `${total.toLocaleString()} artworks`,
+      filtersBtn: 'Filters',
+      searchPlaceholder: 'Search by title, artist or origin…',
+      sortLabel: 'Sort:',
+      clearSearch: 'Clear search',
+      clearMediumFilter: 'Clear medium filter',
+      clearSort: 'Clear sort',
+      clearAll: 'Clear all',
+      clearAllFilters: 'Clear all filters',
+      noResults: 'No artworks match your current filters.',
+      loadError: 'Failed to load artworks. Please try again.',
+      retry: 'Retry',
+      noImage: 'No image available',
+    },
+    filters: {
+      all: 'All',
+      Painting: 'Painting',
+      Print: 'Print',
+      Drawing: 'Drawing',
+      Photography: 'Photography',
+      Object: 'Object',
+      Media: 'Media',
+      Other: 'Other',
+    },
+    sort: {
+      default: 'Default',
+      'date-asc': 'Year ↑',
+      'date-desc': 'Year ↓',
+      'title-az': 'Title A→Z',
+    },
+  },
+  es: {
+    auth: {
+      signIn: 'Iniciar sesión',
+      signingIn: 'Iniciando sesión…',
+      subtitle: 'Inicia sesión en tu cuenta',
+      emailLabel: 'Correo electrónico',
+      emailPlaceholder: 'tu@ejemplo.com',
+      emailRequired: 'El correo es obligatorio',
+      emailInvalid: 'Ingresa un correo electrónico válido',
+      passwordLabel: 'Contraseña',
+      passwordPlaceholder: '••••••••',
+      passwordRequired: 'La contraseña es obligatoria',
+      passwordTooShort: 'La contraseña debe tener al menos 6 caracteres',
+      showPassword: 'Mostrar contraseña',
+      hidePassword: 'Ocultar contraseña',
+      invalidCredentials: 'Credenciales incorrectas. Por favor intenta de nuevo.',
+    },
+    nav: {
+      logout: 'Cerrar sesión',
+    },
+    home: {
+      title: 'Colección de Arte',
+      statusLoading: (loaded: number, total: number) =>
+        `Cargando… ${loaded.toLocaleString('es')} / ${total.toLocaleString('es')} obras`,
+      statusFilteredLoading: (filtered: number, loaded: number) =>
+        `${filtered.toLocaleString('es')} resultados de ${loaded.toLocaleString('es')} cargadas — aún cargando…`,
+      statusFiltered: (filtered: number, total: number) =>
+        `${filtered.toLocaleString('es')} de ${total.toLocaleString('es')} obras`,
+      statusAll: (total: number) => `${total.toLocaleString('es')} obras`,
+      filtersBtn: 'Filtros',
+      searchPlaceholder: 'Buscar por título, artista u origen…',
+      sortLabel: 'Ordenar:',
+      clearSearch: 'Limpiar búsqueda',
+      clearMediumFilter: 'Limpiar filtro de medio',
+      clearSort: 'Limpiar ordenamiento',
+      clearAll: 'Limpiar todo',
+      clearAllFilters: 'Limpiar todos los filtros',
+      noResults: 'Ninguna obra coincide con los filtros actuales.',
+      loadError: 'Error al cargar las obras. Por favor intenta de nuevo.',
+      retry: 'Reintentar',
+      noImage: 'Sin imagen disponible',
+    },
+    filters: {
+      all: 'Todas',
+      Painting: 'Pintura',
+      Print: 'Grabado',
+      Drawing: 'Dibujo',
+      Photography: 'Fotografía',
+      Object: 'Objeto',
+      Media: 'Medios',
+      Other: 'Otro',
+    },
+    sort: {
+      default: 'Por defecto',
+      'date-asc': 'Año ↑',
+      'date-desc': 'Año ↓',
+      'title-az': 'Título A→Z',
+    },
+  },
+} as const
+
+export type Language = keyof typeof translations
+export type Translations = (typeof translations)[Language]

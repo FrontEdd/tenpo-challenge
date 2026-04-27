@@ -1,7 +1,7 @@
 function Shimmer({ className }: { className: string }) {
   return (
-    <div className={`relative overflow-hidden bg-gray-200 rounded ${className}`}>
-      <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+    <div className={`relative overflow-hidden bg-gray-200 dark:bg-stone-700 rounded ${className}`}>
+      <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/60 dark:via-stone-500/30 to-transparent" />
     </div>
   )
 }
@@ -12,7 +12,7 @@ interface ArtworkSkeletonProps {
 
 export function ArtworkSkeleton({ imageClass = 'h-48' }: ArtworkSkeletonProps) {
   return (
-    <div className="bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm flex flex-col h-full">
+    <div className="bg-white dark:bg-stone-800 rounded-xl overflow-hidden border border-gray-100 dark:border-stone-700 shadow-sm flex flex-col h-full">
       <Shimmer className={`w-full ${imageClass} rounded-none`} />
       <div className="flex flex-col gap-2 p-3 flex-1">
         <div className="flex items-start justify-between gap-2">

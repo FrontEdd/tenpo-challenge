@@ -43,6 +43,8 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 **Login credentials:** any valid email + any password of at least 6 characters (fake auth — no backend required).
 
+> The gallery loads 100 artworks instantly from a local seed file, then progressively fetches the remaining 1,900 from the Art Institute of Chicago API in the background.
+
 ---
 
 ## Available Scripts
@@ -103,9 +105,21 @@ Adding a new module (public or private) requires only a new entry in `AppRouter.
 
 The auth token is stored in **localStorage** via Zustand's `persist` middleware (key: `auth-storage`). This keeps the session alive across browser tabs and page refreshes without requiring server-side sessions. The Axios request interceptor reads the token on every request and injects it as a `Bearer` Authorization header automatically.
 
-### Why TanStack Virtual for the list
+### Data source — Art Institute of Chicago API
 
-Rendering 2 000 DOM nodes simultaneously causes layout thrashing and significant memory pressure. TanStack Virtual keeps the DOM node count constant (≈ visible rows + overscan buffer) by only mounting items that fall within the scroll viewport. The total scroll height is maintained via a single absolutely-positioned container, making scroll position and native browser behavior indistinguishable from a real full list. No pagination UI, no infinite-scroll triggers — the user sees all 2 000 items as a single continuous list.
+The home gallery fetches 2,000 artworks from the [Art Institute of Chicago public API](https://api.artic.edu/docs/) using the IIIF image protocol:
+
+```
+Image URL: https://www.artic.edu/iiif/2/{image_id}/full/400,/0/default.jpg
+```
+
+A **seed file** (`docs/artworks-pag.json`) provides the first 100 artworks as a local import, enabling instant first render with zero network wait. Pages 2–20 are fetched progressively in the background with an AbortController for clean cancellation on unmount.
+
+The **Adapter pattern** (`DataSourceAdapter<TRaw>`) decouples the data source from the UI. Swapping to a different API requires only creating a new adapter and updating one line in `listService.ts`.
+
+### Why TanStack Virtual for the gallery grid
+
+Rendering 2,000 DOM nodes simultaneously causes layout thrashing and memory pressure. TanStack Virtual **virtualizes by row** — each virtual row contains N artwork cards (responsive: 1–4 columns via ResizeObserver). Only the visible rows are mounted, keeping DOM nodes constant (~4–6 rows + overscan) regardless of how many artworks are loaded. The grid feels native and continuous with no pagination or infinite-scroll triggers.
 
 ### Logout strategy
 

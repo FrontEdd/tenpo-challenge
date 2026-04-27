@@ -7,8 +7,8 @@ export function PrivateLayout() {
   const { user, logout } = useAuth()
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
+    <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
+      <header className="bg-white border-b border-gray-200 shadow-sm flex-shrink-0 z-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <span className="text-xl font-bold text-primary-600">
             {APP_CONFIG.APP_NAME}
@@ -32,7 +32,7 @@ export function PrivateLayout() {
         </div>
       </header>
 
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6">
+      <main className="flex-1 min-h-0 overflow-hidden max-w-6xl w-full mx-auto px-4 sm:px-6 py-6">
         <Outlet />
       </main>
     </div>

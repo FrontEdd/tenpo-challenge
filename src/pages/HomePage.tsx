@@ -156,7 +156,7 @@ export function HomePage() {
   const isInitialLoad = isStreaming && items.length === 0
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] gap-3">
+    <div className="h-full flex flex-col gap-3">
 
       {/* ── Header ── */}
       <div className="flex-shrink-0 flex flex-col gap-3">
@@ -296,7 +296,7 @@ export function HomePage() {
 
       {/* ── Grid ── */}
       {!error && (isInitialLoad || filteredItems.length > 0) && (
-        <div ref={scrollRef} className="flex-1 overflow-auto">
+        <div ref={scrollRef} className="flex-1 min-h-0 overflow-auto">
           <div ref={gridRef}>
             {isInitialLoad ? (
               /* Skeleton grid during initial load */

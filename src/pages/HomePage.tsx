@@ -8,22 +8,38 @@ import { parseSortYear } from '@utils/artworkUtils'
 import type { ArtworkFilters, ListItem, MediumCategory } from '@app-types/index'
 import { ARTIC } from '@config/constants'
 
-// ─── Constants ───────────────────────────────────────────────────────────────
+// ─── Constants ────────────────────────────────────────────────────────────────
 
-const CARD_HEIGHT = 310   // px  (image 192 + content 118)
-const GAP = 16            // px between cards
-const ROW_HEIGHT = CARD_HEIGHT + GAP
+const GAP = 16
+
+// Card height and image class vary by column count for better proportions:
+// 1-col mobile gets taller image (portrait artworks show better);
+// more columns → more compact cards to fit the grid.
+const COLUMN_CONFIG: Record<number, { cardHeight: number; imageClass: string }> = {
+  1: { cardHeight: 390, imageClass: 'h-56' }, // 224px image — portrait-friendly on mobile
+  2: { cardHeight: 350, imageClass: 'h-52' }, // 208px image — tablet balance
+  3: { cardHeight: 320, imageClass: 'h-48' }, // 192px image — standard
+  4: { cardHeight: 310, imageClass: 'h-48' }, // 192px image — compact grid
+}
+const DEFAULT_CONFIG = COLUMN_CONFIG[4]
 
 const MEDIUM_FILTERS: Array<{ label: string; value: MediumCategory | 'all' }> = [
-  { label: 'All', value: 'all' },
-  { label: 'Painting', value: 'Painting' },
-  { label: 'Print', value: 'Print' },
-  { label: 'Drawing', value: 'Drawing' },
+  { label: 'All',         value: 'all' },
+  { label: 'Painting',    value: 'Painting' },
+  { label: 'Print',       value: 'Print' },
+  { label: 'Drawing',     value: 'Drawing' },
   { label: 'Photography', value: 'Photography' },
-  { label: 'Object', value: 'Object' },
-  { label: 'Media', value: 'Media' },
-  { label: 'Other', value: 'Other' },
+  { label: 'Object',      value: 'Object' },
+  { label: 'Media',       value: 'Media' },
+  { label: 'Other',       value: 'Other' },
 ]
+
+const SORT_LABELS: Record<ArtworkFilters['sortBy'], string> = {
+  'default':   'Default',
+  'date-asc':  'Year ↑',
+  'date-desc': 'Year ↓',
+  'title-az':  'Title A→Z',
+}
 
 const DEFAULT_FILTERS: ArtworkFilters = {
   search: '',
@@ -41,10 +57,10 @@ function useColumnCount(containerRef: React.RefObject<HTMLDivElement | null>) {
     if (!el) return
     const ro = new ResizeObserver(([entry]) => {
       const w = entry.contentRect.width
-      if (w < 480) setColumns(1)
-      else if (w < 768) setColumns(2)
+      if (w < 480)       setColumns(1)
+      else if (w < 768)  setColumns(2)
       else if (w < 1100) setColumns(3)
-      else setColumns(4)
+      else               setColumns(4)
     })
     ro.observe(el)
     return () => ro.disconnect()
@@ -64,11 +80,15 @@ export function HomePage() {
   const [filters, setFilters] = useState<ArtworkFilters>(DEFAULT_FILTERS)
   const [showFilters, setShowFilters] = useState(false)
 
-  const gridRef = useRef<HTMLDivElement>(null)
+  const gridRef  = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const searchRef = useRef<HTMLInputElement>(null)
   const columns = useColumnCount(gridRef)
 
-  // ── Data loading ──────────────────────────────────────────────────────────
+  const { cardHeight, imageClass } = COLUMN_CONFIG[columns] ?? DEFAULT_CONFIG
+  const rowHeight = cardHeight + GAP
+
+  // ── Data loading ─────────────────────────────────────────────────────────
 
   const handleBatch = useCallback((batch: ListItem[], loaded: number) => {
     setItems(prev => {
@@ -98,7 +118,7 @@ export function HomePage() {
     return () => controller.abort()
   }, [retryKey, handleBatch])
 
-  // ── Filtering & sorting ───────────────────────────────────────────────────
+  // ── Filtering & sorting ──────────────────────────────────────────────────
 
   const filteredItems = useMemo(() => {
     let result = items
@@ -118,9 +138,13 @@ export function HomePage() {
     }
 
     if (filters.sortBy === 'date-asc') {
-      result = [...result].sort((a, b) => parseSortYear(a.meta ?? '') - parseSortYear(b.meta ?? ''))
+      result = [...result].sort(
+        (a, b) => parseSortYear(a.meta ?? '') - parseSortYear(b.meta ?? '')
+      )
     } else if (filters.sortBy === 'date-desc') {
-      result = [...result].sort((a, b) => parseSortYear(b.meta ?? '') - parseSortYear(a.meta ?? ''))
+      result = [...result].sort(
+        (a, b) => parseSortYear(b.meta ?? '') - parseSortYear(a.meta ?? '')
+      )
     } else if (filters.sortBy === 'title-az') {
       result = [...result].sort((a, b) => a.title.localeCompare(b.title))
     }
@@ -128,57 +152,88 @@ export function HomePage() {
     return result
   }, [items, filters])
 
-  // ── Virtualization ────────────────────────────────────────────────────────
+  // Scroll to top whenever filters change
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: 0 })
+  }, [filters])
+
+  // ── Virtualization ───────────────────────────────────────────────────────
 
   const rowCount = Math.ceil(filteredItems.length / columns)
 
   const rowVirtualizer = useVirtualizer({
     count: rowCount,
     getScrollElement: () => scrollRef.current,
-    estimateSize: () => ROW_HEIGHT,
+    estimateSize: () => rowHeight,
     overscan: 3,
   })
 
-  // ── Filter helpers ────────────────────────────────────────────────────────
+  // ── Filter state helpers ─────────────────────────────────────────────────
 
-  const hasActiveFilters =
-    filters.search !== '' ||
-    filters.mediumCategory !== 'all' ||
-    filters.sortBy !== 'default'
+  const hasSearch   = filters.search !== ''
+  const hasMedium   = filters.mediumCategory !== 'all'
+  const hasSort     = filters.sortBy !== 'default'
+  const hasActiveFilters = hasSearch || hasMedium || hasSort
 
+  const clearSearch = () => setFilters(f => ({ ...f, search: '' }))
+  const clearMedium = () => setFilters(f => ({ ...f, mediumCategory: 'all' }))
+  const clearSort   = () => setFilters(f => ({ ...f, sortBy: 'default' }))
   const resetFilters = () => {
     setFilters(DEFAULT_FILTERS)
     scrollRef.current?.scrollTo({ top: 0 })
   }
 
-  // ── Render ────────────────────────────────────────────────────────────────
+  // Escape key on search input → clear search text
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Escape') {
+      clearSearch()
+      searchRef.current?.blur()
+    }
+  }
+
+  // ── Status message ───────────────────────────────────────────────────────
+
+  const statusMessage = (() => {
+    if (isStreaming && !hasActiveFilters) {
+      return `Loading… ${loadedCount.toLocaleString()} / ${ARTIC.TOTAL_ITEMS.toLocaleString()} artworks`
+    }
+    if (isStreaming && hasActiveFilters) {
+      return `${filteredItems.length.toLocaleString()} results from ${items.length.toLocaleString()} loaded — still loading…`
+    }
+    if (hasActiveFilters) {
+      return `${filteredItems.length.toLocaleString()} of ${items.length.toLocaleString()} artworks`
+    }
+    return `${items.length.toLocaleString()} artworks`
+  })()
+
+  // ── Render ───────────────────────────────────────────────────────────────
 
   const isInitialLoad = isStreaming && items.length === 0
 
   return (
     <div className="h-full flex flex-col gap-3">
 
-      {/* ── Header ── */}
-      <div className="flex-shrink-0 flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <div>
+      {/* ── Title row ── */}
+      <div className="flex-shrink-0 flex flex-col gap-2">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
             <h2 className="text-xl font-bold text-gray-900">Art Collection</h2>
-            <p className="text-sm text-gray-500 mt-0.5">
-              {isStreaming
-                ? `Loading… ${loadedCount.toLocaleString()} / ${ARTIC.TOTAL_ITEMS.toLocaleString()} artworks`
-                : `${filteredItems.length.toLocaleString()}${hasActiveFilters ? ` of ${items.length.toLocaleString()}` : ''} artworks`}
-            </p>
+            <p className="text-sm text-gray-500 mt-0.5 truncate">{statusMessage}</p>
           </div>
 
           <button
             onClick={() => setShowFilters(v => !v)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-150 ${showFilters || hasActiveFilters ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+            className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-150 ${
+              showFilters || hasActiveFilters
+                ? 'bg-primary-600 text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
           >
             <SlidersHorizontal size={14} />
             <span className="hidden sm:block">Filters</span>
             {hasActiveFilters && (
-              <span className="w-4 h-4 text-xs bg-white text-primary-600 rounded-full flex items-center justify-center font-bold">
-                !
+              <span className="w-5 h-5 text-[10px] bg-white text-primary-600 rounded-full flex items-center justify-center font-bold">
+                {[hasSearch, hasMedium, hasSort].filter(Boolean).length}
               </span>
             )}
           </button>
@@ -194,23 +249,75 @@ export function HomePage() {
           </div>
         )}
 
-        {/* Filter panel */}
+        {/* Active filter chips — always visible when filters are on */}
+        {hasActiveFilters && (
+          <div className="flex flex-wrap items-center gap-2">
+            {hasSearch && (
+              <span className="flex items-center gap-1 bg-primary-50 text-primary-700 border border-primary-200 text-xs px-2.5 py-1 rounded-full max-w-[180px]">
+                <Search size={10} className="flex-shrink-0" />
+                <span className="truncate">&ldquo;{filters.search}&rdquo;</span>
+                <button
+                  onClick={clearSearch}
+                  className="flex-shrink-0 hover:text-primary-900 ml-0.5"
+                  aria-label="Clear search"
+                >
+                  <X size={11} />
+                </button>
+              </span>
+            )}
+            {hasMedium && (
+              <span className="flex items-center gap-1 bg-primary-50 text-primary-700 border border-primary-200 text-xs px-2.5 py-1 rounded-full">
+                {filters.mediumCategory}
+                <button
+                  onClick={clearMedium}
+                  className="flex-shrink-0 hover:text-primary-900 ml-0.5"
+                  aria-label="Clear medium filter"
+                >
+                  <X size={11} />
+                </button>
+              </span>
+            )}
+            {hasSort && (
+              <span className="flex items-center gap-1 bg-primary-50 text-primary-700 border border-primary-200 text-xs px-2.5 py-1 rounded-full">
+                {SORT_LABELS[filters.sortBy]}
+                <button
+                  onClick={clearSort}
+                  className="flex-shrink-0 hover:text-primary-900 ml-0.5"
+                  aria-label="Clear sort"
+                >
+                  <X size={11} />
+                </button>
+              </span>
+            )}
+            <button
+              onClick={resetFilters}
+              className="text-xs text-gray-400 hover:text-red-500 transition-colors duration-150 underline underline-offset-2"
+            >
+              Clear all
+            </button>
+          </div>
+        )}
+
+        {/* Collapsible filter panel */}
         {showFilters && (
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex flex-col gap-3">
-            {/* Search */}
+            {/* Search input */}
             <div className="relative">
               <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
               <input
+                ref={searchRef}
                 type="search"
                 placeholder="Search by title, artist or origin…"
                 value={filters.search}
                 onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
+                onKeyDown={handleSearchKeyDown}
                 className="input-field pl-9 pr-9 text-sm py-2"
               />
               {filters.search && (
                 <button
-                  onClick={() => setFilters(f => ({ ...f, search: '' }))}
+                  onClick={clearSearch}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  aria-label="Clear search"
                 >
                   <X size={14} />
                 </button>
@@ -234,36 +341,23 @@ export function HomePage() {
               ))}
             </div>
 
-            {/* Sort + reset row */}
-            <div className="flex items-center justify-between gap-3 flex-wrap">
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500 font-medium">Sort by:</span>
-                <div className="flex gap-1 flex-wrap">
-                  {([
-                    { label: 'Default', value: 'default' },
-                    { label: 'Year ↑', value: 'date-asc' },
-                    { label: 'Year ↓', value: 'date-desc' },
-                    { label: 'Title A→Z', value: 'title-az' },
-                  ] as const).map(s => (
-                    <button
-                      key={s.value}
-                      onClick={() => setFilters(f => ({ ...f, sortBy: s.value }))}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors duration-150 ${
-                        filters.sortBy === s.value
-                          ? 'bg-primary-100 text-primary-700'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
-                    >
-                      {s.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {hasActiveFilters && (
-                <button onClick={resetFilters} className="text-xs text-red-500 hover:text-red-700 font-medium flex items-center gap-1">
-                  <X size={12} /> Clear all
-                </button>
+            {/* Sort row */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs text-gray-500 font-medium">Sort:</span>
+              {(Object.entries(SORT_LABELS) as [ArtworkFilters['sortBy'], string][]).map(
+                ([value, label]) => (
+                  <button
+                    key={value}
+                    onClick={() => setFilters(f => ({ ...f, sortBy: value }))}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors duration-150 ${
+                      filters.sortBy === value
+                        ? 'bg-primary-100 text-primary-700'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                )
               )}
             </div>
           </div>
@@ -275,20 +369,26 @@ export function HomePage() {
         <div className="flex-1 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3 text-red-500">
             <p className="text-sm">{error}</p>
-            <button onClick={() => setRetryKey(k => k + 1)} className="btn-primary text-sm px-4 py-2">
+            <button
+              onClick={() => setRetryKey(k => k + 1)}
+              className="btn-primary text-sm px-4 py-2"
+            >
               Retry
             </button>
           </div>
         </div>
       )}
 
-      {/* ── Empty state after filter ── */}
+      {/* ── Empty search state ── */}
       {!error && !isInitialLoad && filteredItems.length === 0 && (
-        <div className="flex-1 flex items-center justify-center text-gray-400">
-          <div className="text-center">
-            <p className="text-sm">No artworks match your filters.</p>
-            <button onClick={resetFilters} className="text-xs text-primary-600 hover:underline mt-1">
-              Clear filters
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center text-gray-400 space-y-2">
+            <p className="text-sm">No artworks match your current filters.</p>
+            <button
+              onClick={resetFilters}
+              className="text-xs text-primary-600 hover:text-primary-800 underline underline-offset-2"
+            >
+              Clear all filters
             </button>
           </div>
         </div>
@@ -299,17 +399,15 @@ export function HomePage() {
         <div ref={scrollRef} className="flex-1 min-h-0 overflow-auto">
           <div ref={gridRef}>
             {isInitialLoad ? (
-              /* Skeleton grid during initial load */
               <div
                 className="grid gap-4"
                 style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
               >
                 {Array.from({ length: columns * 4 }).map((_, i) => (
-                  <ArtworkSkeleton key={i} />
+                  <ArtworkSkeleton key={i} imageClass={imageClass} />
                 ))}
               </div>
             ) : (
-              /* Virtualized rows */
               <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
                 {rowVirtualizer.getVirtualItems().map(virtualRow => {
                   const startIdx = virtualRow.index * columns
@@ -323,7 +421,7 @@ export function HomePage() {
                         top: 0,
                         left: 0,
                         width: '100%',
-                        height: `${CARD_HEIGHT}px`,
+                        height: `${cardHeight}px`,
                         transform: `translateY(${virtualRow.start}px)`,
                       }}
                     >
@@ -332,9 +430,8 @@ export function HomePage() {
                         style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
                       >
                         {rowItems.map(item => (
-                          <ArtworkCard key={item.id} item={item} />
+                          <ArtworkCard key={item.id} item={item} imageClass={imageClass} />
                         ))}
-                        {/* Fill empty cells in the last row */}
                         {rowItems.length < columns &&
                           Array.from({ length: columns - rowItems.length }).map((_, i) => (
                             <div key={`empty-${i}`} />

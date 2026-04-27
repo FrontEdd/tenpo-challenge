@@ -6,13 +6,14 @@ function Shimmer({ className }: { className: string }) {
   )
 }
 
-export function ArtworkSkeleton() {
+interface ArtworkSkeletonProps {
+  imageClass?: string
+}
+
+export function ArtworkSkeleton({ imageClass = 'h-48' }: ArtworkSkeletonProps) {
   return (
     <div className="bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm flex flex-col h-full">
-      {/* Image area */}
-      <Shimmer className="w-full h-48 rounded-none" />
-
-      {/* Content area */}
+      <Shimmer className={`w-full ${imageClass} rounded-none`} />
       <div className="flex flex-col gap-2 p-3 flex-1">
         <div className="flex items-start justify-between gap-2">
           <Shimmer className="h-4 flex-1 rounded" />

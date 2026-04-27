@@ -17,7 +17,8 @@
       "@config/*": ["./src/config/*"],
       "@contexts/*": ["./src/contexts/*"],
       "@layouts/*": ["./src/layouts/*"],
-      "@routes/*": ["./src/routes/*"]
+      "@routes/*": ["./src/routes/*"],
+      "@i18n/*": ["./src/i18n/*"]
     },
 
     /* Bundler mode */

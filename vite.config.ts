@@ -18,6 +18,7 @@ export default defineConfig({
       '@contexts': path.resolve(__dirname, './src/contexts'),
       '@layouts': path.resolve(__dirname, './src/layouts'),
       '@routes': path.resolve(__dirname, './src/routes'),
+      '@i18n': path.resolve(__dirname, './src/i18n'),
     },
   },
 })

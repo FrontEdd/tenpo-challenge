@@ -8,7 +8,7 @@ interface ErrorResponse {
 
 // Crear instancia de axios
 const apiClient = axios.create({
-  baseURL: 'https://jsonplaceholder.typicode.com',
+  baseURL: 'https://api.artic.edu/api/v1',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      // Store the full path so the SPA can restore it after redirect
+      sessionStorage.setItem('spa_path', location.pathname + location.search + location.hash)
+      // Redirect to app root (first path segment = repo name on GitHub Pages)
+      location.replace('/' + location.pathname.split('/')[1] + '/')
+    </script>
+  </head>
+  <body></body>
+</html>

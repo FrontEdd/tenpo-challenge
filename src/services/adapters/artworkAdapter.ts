@@ -41,7 +41,7 @@ export const artworkAdapter: DataSourceAdapter<Artwork> = {
       mediumCategory,
       origin: artwork.place_of_origin ?? undefined,
       accentColor,
-      mediumDisplay: artwork.medium_display,
+      mediumDisplay: artwork.medium_display ?? undefined,
       artworkType: artwork.artwork_type_title ?? undefined,
     }
   },

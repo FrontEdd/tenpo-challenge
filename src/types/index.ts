@@ -26,10 +26,10 @@ export interface ApiResponse<T> {
 export interface Artwork {
   id: number
   title: string
-  artist_display: string
-  date_display: string
+  artist_display: string | null
+  date_display: string | null
   image_id: string | null
-  medium_display: string
+  medium_display: string | null
   place_of_origin: string | null
   thumbnail: {
     lqip: string

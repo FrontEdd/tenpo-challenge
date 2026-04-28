@@ -9,7 +9,8 @@ const MEDIUM_RULES: Array<{ keywords: string[]; category: MediumCategory }> = [
   { keywords: ['video', 'film', 'digital', 'audio', 'sound', 'media', 'installation', 'animation', 'projection'], category: 'Media' },
 ]
 
-export function parseMediumCategory(medium: string): MediumCategory {
+export function parseMediumCategory(medium: string | null | undefined): MediumCategory {
+  if (!medium) return 'Other'
   const lower = medium.toLowerCase()
   for (const rule of MEDIUM_RULES) {
     if (rule.keywords.some(k => lower.includes(k))) return rule.category
@@ -29,8 +30,8 @@ export function buildImageUrl(imageId: string | null, width = '400'): string | u
   return `https://www.artic.edu/iiif/2/${imageId}/full/${width},/0/default.jpg`
 }
 
-export function parseArtistName(artistDisplay: string): string {
-  // artist_display is multiline: "Artist Name\nNationality, birth-death"
+export function parseArtistName(artistDisplay: string | null | undefined): string {
+  if (!artistDisplay) return ''
   return artistDisplay.split('\n')[0].trim()
 }
 

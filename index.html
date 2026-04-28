@@ -5,6 +5,16 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>tenpo-challenge</title>
+    <!-- Restore path after GitHub Pages 404 redirect -->
+    <script>
+      ;(function () {
+        var p = sessionStorage.getItem('spa_path')
+        if (p) {
+          sessionStorage.removeItem('spa_path')
+          window.history.replaceState(null, '', p)
+        }
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>
